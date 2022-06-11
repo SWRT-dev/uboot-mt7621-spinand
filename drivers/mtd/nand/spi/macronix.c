@@ -12,6 +12,7 @@
 #endif
 #include <linux/bug.h>
 #include <linux/mtd/spinand.h>
+#include <dm/device_compat.h>
 
 #define SPINAND_MFR_MACRONIX		0xC2
 #define MACRONIX_ECCSR_MASK		0x0F
@@ -246,10 +247,13 @@ static void macronix_spinand_generate_nor_emu_table(void)
 static int macronix_spinand_read_cfg_reg(struct spinand_device *spinand, u8 *buf,
 				       u8 *val)
 {
-	struct spi_mem_op op = SPINAND_GET_FEATURE_OP(REG_CFG, buf);
+	struct spi_mem_op op = SPINAND_GET_FEATURE_OP(0x60, buf);
 	int ret;
-
+#ifndef __UBOOT__
 	ret = spi_mem_exec_op(spinand->spimem, &op);
+#else
+	ret = spi_mem_exec_op(spinand->slave, &op);
+#endif
 	if (ret)
 		return ret;
 
@@ -260,18 +264,25 @@ static int macronix_spinand_read_cfg_reg(struct spinand_device *spinand, u8 *buf
 static int macronix_spinand_write_cfg_reg(struct spinand_device *spinand, u8 *buf,
 					u8 val)
 {
-	struct spi_mem_op op = SPINAND_SET_FEATURE_OP(REG_CFG, buf);
+	struct spi_mem_op op = SPINAND_SET_FEATURE_OP(0x60, buf);
 
 	buf[0] = val;
+#ifndef __UBOOT__
 	return spi_mem_exec_op(spinand->spimem, &op);
+#else
+	return spi_mem_exec_op(spinand->slave, &op);
+#endif
 }
 
 static int macronix_spinand_load_page(struct spinand_device *spinand,
 				    unsigned int row)
 {
 	struct spi_mem_op op = SPINAND_PAGE_READ_OP(row);
-
+#ifndef __UBOOT__
 	return spi_mem_exec_op(spinand->spimem, &op);
+#else
+	return spi_mem_exec_op(spinand->slave, &op);
+#endif
 }
 
 static int macronix_spinand_read_from_cache(struct spinand_device *spinand,
@@ -291,11 +302,19 @@ static int macronix_spinand_read_from_cache(struct spinand_device *spinand,
 	while (nbytes) {
 		op.data.buf.in = bufptr;
 		op.data.nbytes = nbytes;
+#ifndef __UBOOT__
 		ret = spi_mem_adjust_op_size(spinand->spimem, &op);
+#else
+		ret = spi_mem_adjust_op_size(spinand->slave, &op);
+#endif
 		if (ret)
 			return ret;
 
+#ifndef __UBOOT__
 		ret = spi_mem_exec_op(spinand->spimem, &op);
+#else
+		ret = spi_mem_exec_op(spinand->slave, &op);
+#endif
 		if (ret)
 			return ret;
 
@@ -310,7 +329,11 @@ static int macronix_spinand_read_from_cache(struct spinand_device *spinand,
 static int macronix_spinand_detect_nor_emu(struct spinand_device *spinand,
 					 u8 devid, int *enabled)
 {
+#ifndef __UBOOT__
 	struct device *dev = &spinand->spimem->spi->dev;
+#else
+	struct device *dev = &spinand->slave->dev;
+#endif
 	unsigned int i, num_ffs = 0, num_zeros = 0, len = 0;
 	u8 cfg, *buf;
 	int ret;
@@ -339,10 +362,7 @@ static int macronix_spinand_detect_nor_emu(struct spinand_device *spinand,
 		dev_err(dev, "failed to read configuration\n");
 		goto cleanup;
 	}
-
-	cfg &= ~0xc2;
-	cfg |= 0x82;
-
+	cfg |= 0x2;
 	ret = macronix_spinand_write_cfg_reg(spinand, buf, cfg);
 	if (ret) {
 		dev_err(dev, "failed to write configuration\n");
@@ -355,8 +375,8 @@ static int macronix_spinand_detect_nor_emu(struct spinand_device *spinand,
 		goto cleanup;
 	}
 
-	if ((cfg & 0xc2) != 0x82) {
-		dev_info(dev,
+	if ((cfg & 0x2) != 0x2) {
+		dev_err(dev,
 			 "flash chip does not support NOR read emulation\n");
 		ret = -ENOTSUPP;
 		goto cleanup;
@@ -373,7 +393,7 @@ static int macronix_spinand_detect_nor_emu(struct spinand_device *spinand,
 		dev_err(dev, "failed to read NOR read configuration\n");
 		goto cleanup;
 	}
-
+#if 0
 	if (!ret) {
 		for (i = 0; i < len; i++) {
 			if (buf[i] == 0xff)
@@ -387,14 +407,14 @@ static int macronix_spinand_detect_nor_emu(struct spinand_device *spinand,
 		} else if (num_zeros == len) {
 			*enabled = 1;
 		} else {
-			dev_warn(dev,
+			dev_err(dev,
 				 "failed to check NOR read configuration\n");
 			ret = -EINVAL;
 		}
 	}
-
+#endif
 cleanup:
-	if (macronix_spinand_write_cfg_reg(spinand, buf, cfg & (~0xc2)))
+	if (macronix_spinand_write_cfg_reg(spinand, buf, cfg & (~0x2)))
 		dev_err(dev, "failed to leave NOR read configuration\n");
 
 	kfree(buf);
@@ -408,7 +428,11 @@ static int macronix_spinand_detect(struct spinand_device *spinand)
 	u8 *id = spinand->id.data;
 	int ret;
 #if defined(CONFIG_BOARD_MT7621_SPINAND_RFB)
+#ifndef __UBOOT__
 	struct device *dev = &spinand->spimem->spi->dev;
+#else
+	struct device *dev = &spinand->slave->dev;
+#endif
 	int nor_read = 0;
 #endif
 
@@ -419,7 +443,6 @@ static int macronix_spinand_detect(struct spinand_device *spinand)
 	if (id[1] != SPINAND_MFR_MACRONIX)
 		return 0;
 #if defined(CONFIG_BOARD_MT7621_SPINAND_RFB)
-
 	ret = macronix_spinand_detect_nor_emu(spinand, id[2], &nor_read);
 	if (ret)
 		nor_read = 0;
@@ -435,6 +458,7 @@ static int macronix_spinand_detect(struct spinand_device *spinand)
 	ret = spinand_match_and_init(spinand, macronix_spinand_table,
 				     ARRAY_SIZE(macronix_spinand_table),
 				     id[2]);
+
 	if (ret)
 		return ret;
 

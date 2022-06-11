@@ -273,6 +273,12 @@ ifeq ($(HOSTARCH),$(ARCH))
 CROSS_COMPILE ?=
 endif
 
+### ASUS_PRODUCT ###
+CROSS_COMPILE_PATH = /opt/toolchain-mipsel_24kc_gcc-5.4.0_musl-1.1.24/bin
+export STAGING_DIR=/opt/toolchain-mipsel_24kc_gcc-5.4.0_musl-1.1.24/
+CROSS_COMPILE = $(CROSS_COMPILE_PATH)/mipsel-openwrt-linux-
+### ASUS_PRODUCT ###
+
 KCONFIG_CONFIG	?= .config
 export KCONFIG_CONFIG
 

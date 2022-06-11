@@ -143,6 +143,10 @@
 #define STATUS_ECC_HAS_BITFLIPS	(1 << 4)
 #define STATUS_ECC_UNCOR_ERROR	(2 << 4)
 
+#if defined(CONFIG_BOARD_MT7621_SPINAND_RFB)
+#define SPINAND_RELOAD_PAGE_0		BIT(2)
+#endif
+
 struct spinand_op;
 struct spinand_device;
 

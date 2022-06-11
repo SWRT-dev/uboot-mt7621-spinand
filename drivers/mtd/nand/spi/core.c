@@ -476,6 +476,31 @@ static int spinand_reset_op(struct spinand_device *spinand)
 	return spinand_wait(spinand, NULL);
 }
 
+#if defined(CONFIG_BOARD_MT7621_SPINAND_RFB)
+static int spinand_load_page_0(struct spinand_device *spinand)
+{
+	struct nand_device *nand = spinand_to_nand(spinand);
+	struct nand_page_io_req req;
+	u8 status;
+	int ret;
+
+	memset(&req, 0, sizeof(req));
+	nanddev_offs_to_pos(nand, 0, &req.pos);
+
+	ret = spinand_select_target(spinand, 0);
+	if (ret)
+		return ret;
+
+	spinand_ecc_enable(spinand, true);
+
+	ret = spinand_load_page_op(spinand, &req);
+	if (ret)
+		return ret;
+
+	return spinand_wait(spinand, &status);
+}
+#endif
+
 static int spinand_lock_block(struct spinand_device *spinand, u8 lock)
 {
 	return spinand_write_reg_op(spinand, REG_BLOCK_LOCK, lock);
@@ -605,6 +630,10 @@ static int spinand_mtd_read(struct mtd_info *mtd, loff_t from,
 		ops->oobretlen += iter.req.ooblen;
 	}
 
+#if defined(CONFIG_BOARD_MT7621_SPINAND_RFB)
+	if (spinand->flags & SPINAND_RELOAD_PAGE_0)
+		spinand_load_page_0(spinand);
+#endif
 #ifndef __UBOOT__
 	mutex_unlock(&spinand->lock);
 #endif
@@ -648,6 +677,10 @@ static int spinand_mtd_write(struct mtd_info *mtd, loff_t to,
 		ops->oobretlen += iter.req.ooblen;
 	}
 
+#if defined(CONFIG_BOARD_MT7621_SPINAND_RFB)
+	if (spinand->flags & SPINAND_RELOAD_PAGE_0)
+		spinand_load_page_0(spinand);
+#endif
 #ifndef __UBOOT__
 	mutex_unlock(&spinand->lock);
 #endif
@@ -688,6 +721,9 @@ static int spinand_mtd_block_isbad(struct mtd_info *mtd, loff_t offs)
 #ifndef __UBOOT__
 	struct spinand_device *spinand = nand_to_spinand(nand);
 #endif
+#if defined(CONFIG_BOARD_MT7621_SPINAND_RFB)
+	struct spinand_device *spinand = nand_to_spinand(nand);
+#endif
 	struct nand_pos pos;
 	int ret;
 
@@ -696,6 +732,11 @@ static int spinand_mtd_block_isbad(struct mtd_info *mtd, loff_t offs)
 	mutex_lock(&spinand->lock);
 #endif
 	ret = nanddev_isbad(nand, &pos);
+
+#if defined(CONFIG_BOARD_MT7621_SPINAND_RFB)
+	if (spinand->flags & SPINAND_RELOAD_PAGE_0)
+		spinand_load_page_0(spinand);
+#endif
 #ifndef __UBOOT__
 	mutex_unlock(&spinand->lock);
 #endif
@@ -728,6 +769,9 @@ static int spinand_mtd_block_markbad(struct mtd_info *mtd, loff_t offs)
 #ifndef __UBOOT__
 	struct spinand_device *spinand = nand_to_spinand(nand);
 #endif
+#if defined(CONFIG_BOARD_MT7621_SPINAND_RFB)
+	struct spinand_device *spinand = nand_to_spinand(nand);
+#endif
 	struct nand_pos pos;
 	int ret;
 
@@ -736,6 +780,10 @@ static int spinand_mtd_block_markbad(struct mtd_info *mtd, loff_t offs)
 	mutex_lock(&spinand->lock);
 #endif
 	ret = nanddev_markbad(nand, &pos);
+#if defined(CONFIG_BOARD_MT7621_SPINAND_RFB)
+	if (spinand->flags & SPINAND_RELOAD_PAGE_0)
+		spinand_load_page_0(spinand);
+#endif
 #ifndef __UBOOT__
 	mutex_unlock(&spinand->lock);
 #endif
@@ -773,12 +821,19 @@ static int spinand_mtd_erase(struct mtd_info *mtd,
 #ifndef __UBOOT__
 	struct spinand_device *spinand = mtd_to_spinand(mtd);
 #endif
+#if defined(CONFIG_BOARD_MT7621_SPINAND_RFB)
+	struct spinand_device *spinand = mtd_to_spinand(mtd);
+#endif
 	int ret;
 
 #ifndef __UBOOT__
 	mutex_lock(&spinand->lock);
 #endif
 	ret = nanddev_mtd_erase(mtd, einfo);
+#if defined(CONFIG_BOARD_MT7621_SPINAND_RFB)
+	if (spinand->flags & SPINAND_RELOAD_PAGE_0)
+		spinand_load_page_0(spinand);
+#endif
 #ifndef __UBOOT__
 	mutex_unlock(&spinand->lock);
 #endif
@@ -791,6 +846,9 @@ static int spinand_mtd_block_isreserved(struct mtd_info *mtd, loff_t offs)
 #ifndef __UBOOT__
 	struct spinand_device *spinand = mtd_to_spinand(mtd);
 #endif
+#if defined(CONFIG_BOARD_MT7621_SPINAND_RFB)
+	struct spinand_device *spinand = mtd_to_spinand(mtd);
+#endif
 	struct nand_device *nand = mtd_to_nanddev(mtd);
 	struct nand_pos pos;
 	int ret;
@@ -800,6 +858,10 @@ static int spinand_mtd_block_isreserved(struct mtd_info *mtd, loff_t offs)
 	mutex_lock(&spinand->lock);
 #endif
 	ret = nanddev_isreserved(nand, &pos);
+#if defined(CONFIG_BOARD_MT7621_SPINAND_RFB)
+	if (spinand->flags & SPINAND_RELOAD_PAGE_0)
+		spinand_load_page_0(spinand);
+#endif
 #ifndef __UBOOT__
 	mutex_unlock(&spinand->lock);
 #endif
@@ -1205,6 +1267,10 @@ static int spinand_remove(struct udevice *slave)
 	ret = mtd_device_unregister(mtd);
 	if (ret)
 		return ret;
+#if defined(CONFIG_BOARD_MT7621_SPINAND_RFB)
+	if (spinand->flags & SPINAND_RELOAD_PAGE_0)
+		spinand_load_page_0(spinand);
+#endif
 
 	spinand_cleanup(spinand);
 
@@ -1253,3 +1319,4 @@ U_BOOT_DRIVER(spinand) = {
 	.priv_auto	= sizeof(struct spinand_device),
 	.probe = spinand_probe,
 };
+
