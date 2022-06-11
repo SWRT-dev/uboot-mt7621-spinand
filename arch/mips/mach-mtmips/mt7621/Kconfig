@@ -99,17 +99,27 @@ config BOARD_MT7621_NAND_RFB
 	  sockets, 1 RGMII to external GbE PHY, 2 audio jacks (in/out),
 	  JTAG pins and expansion GPIO pins.
 
+config BOARD_MT7621_SPINAND_RFB
+	bool "MediaTek MT7621 RFB (SPI-NAND)"
+	help
+	  The reference design of MT7621A (WS3010) booting from SPI-NAND flash.
+	  The board can be configured with DDR2 (64MiB~256MiB) or DDR3
+	  (128MiB~512MiB). The board has 128 MiB SPI-NAND flash, built-in MT7530
+	  GbE switch, 1 UART, 1 USB 2.0 host, 1 USB 3.0 host, 1 SDXC, 3 PCIe
+	  sockets, 1 RGMII to external GbE PHY, 2 audio jacks (in/out),
+	  JTAG pins and expansion GPIO pins.
+
 endchoice
 
 config SYS_CONFIG_NAME
 	string "Board configuration name"
-	default "mt7621" if  BOARD_MT7621_RFB || BOARD_MT7621_NAND_RFB
+	default "mt7621" if  BOARD_MT7621_RFB || BOARD_MT7621_NAND_RFB || BOARD_MT7621_SPINAND_RFB
 
 config SYS_BOARD
 	string "Board name"
-	default "mt7621" if  BOARD_MT7621_RFB || BOARD_MT7621_NAND_RFB
+	default "mt7621" if  BOARD_MT7621_RFB || BOARD_MT7621_NAND_RFB || BOARD_MT7621_SPINAND_RFB
 
 config SYS_VENDOR
-	default "mediatek" if BOARD_MT7621_RFB || BOARD_MT7621_NAND_RFB
+	default "mediatek" if BOARD_MT7621_RFB || BOARD_MT7621_NAND_RFB || BOARD_MT7621_SPINAND_RFB
 
 endif
