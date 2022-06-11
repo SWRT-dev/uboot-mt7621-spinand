@@ -5,7 +5,7 @@ CONFIG_SPL_LIBGENERIC_SUPPORT=y
 CONFIG_NR_DRAM_BANKS=1
 CONFIG_CMD_MTDPARTS=y
 CONFIG_MTDIDS_DEFAULT="spi-nand0=spi-nand0"
-CONFIG_MTDPARTS_DEFAULT="spi-nand0:768k(bootloader),256k(u-boot-env),1024k(nvram),1024k(factory),1024k(factory2),61440k(firmware),64512k(jffs)"
+CONFIG_MTDPARTS_DEFAULT="spi-nand0:768k(bootloader),256k(u-boot-env),1024k(nvram),1024k(factory),1024k(factory2),61440k(firmware),64512k(jffs2)"
 CONFIG_ENV_OVERWRITE=y
 CONFIG_ENV_IS_IN_MTD=y
 CONFIG_ENV_MTD_NAME="spi-nand0"
