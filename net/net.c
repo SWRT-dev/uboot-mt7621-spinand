@@ -116,6 +116,7 @@
 #if defined(CONFIG_CMD_WOL)
 #include "wol.h"
 #endif
+#include "tcp.h"
 
 /** BOOTP EXTENTIONS **/
 
@@ -527,6 +528,11 @@ restart:
 			wol_start();
 			break;
 #endif
+#if defined(CONFIG_TCP)
+		case TCP:
+			tcp_start();
+			break;
+#endif
 		default:
 			break;
 		}
@@ -570,6 +576,13 @@ restart:
 		 *	errors that may have happened.
 		 */
 		eth_rx();
+
+#if defined(CONFIG_TCP)
+		/*
+		 *	TCP periodic check
+		 */
+		tcp_periodic_check();
+#endif
 
 		/*
 		 *	Abort if ctrl-c was pressed.
@@ -1256,6 +1269,11 @@ void net_process_received_packet(uchar *in_packet, int len)
 		if (ip->ip_p == IPPROTO_ICMP) {
 			receive_icmp(ip, len, src_ip, et);
 			return;
+#if defined(CONFIG_TCP)
+		} else if (ip->ip_p == IPPROTO_TCP) {	/* TCP packets */
+			receive_tcp((struct ip_hdr *) ip, len, et);
+			return;
+#endif
 		} else if (ip->ip_p != IPPROTO_UDP) {	/* Only UDP packets */
 			return;
 		}
@@ -1373,6 +1391,7 @@ common:
 	case NETCONS:
 	case FASTBOOT:
 	case TFTPSRV:
+	case TCP:
 		if (net_ip.s_addr == 0) {
 			puts("*** ERROR: `ipaddr' not set\n");
 			return 1;

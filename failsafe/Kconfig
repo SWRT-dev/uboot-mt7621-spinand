@@ -1,0 +1,31 @@
+#
+# Failsafe Web UI
+#
+
+menuconfig WEBUI_FAILSAFE
+	bool "Enable Failsafe Web UI"
+	select TCP
+	select HTTPD
+	default n
+	help
+	  Enable Web based failsafe UI
+
+if WEBUI_FAILSAFE
+
+config WEBUI_FAILSAFE_ON_AUTOBOOT_FAIL
+	bool "Start Failsafe Web UI on autoboot failure"
+	default n
+
+config FAILSAFE_BUTTON_GPIO_NUMBER
+	int "The GPIO Number of button for enter Failsafe Web"
+	default -1
+	help
+	  The GPIO Number of button for enter Failsafe Web.
+
+config FAILSAFE_LED_GPIO_NUMBER
+	int "The GPIO Number of LED for enter Failsafe Web"
+	default -1
+	help
+	  The GPIO Number of status LED for enter Failsafe Web.
+
+endif # WEBUI_FAILSAFE

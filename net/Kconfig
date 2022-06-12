@@ -168,6 +168,15 @@ config BOOTP_SERVERIP
 	  variable, not the BOOTP server. This affects the operation of both
 	  bootp and tftp.
 
+config TCP
+	bool "TCP base support"
+	default n
+
+config HTTPD
+	bool "HTTPD Server support"
+	default n
+	depends on TCP
+
 endif   # if NET
 
 config SYS_RX_ETH_BUFFER

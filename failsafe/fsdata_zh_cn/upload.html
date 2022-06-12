@@ -1,0 +1,24 @@
+<!doctype html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>确认固件 - 恢复模式</title>
+	<link rel="stylesheet" type="text/css" href="/style.css">
+</head>
+<body>
+	<div id="banner">
+		恢复模式
+	</div>
+	<div id="main">
+		<p>确认升级文件:</p>
+		<div id="fileinfo">
+			<p>MD5: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX</p>
+			<p>Size: YYYYYYYYYY Bytes</p>
+		</div>
+		<p>如果确认无误, 请点击[升级].</p>
+		<form action="/flashing" method="post" enctype="multipart/form-data">
+			<p><input type="submit" id="submit" value="升级" /></p>
+		</form>
+	</div>
+</body>
+</html>

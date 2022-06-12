@@ -64,4 +64,63 @@
 #define CONFIG_SYS_UBOOT_BASE		0
 #define CONFIG_SYS_NAND_U_BOOT_OFFS	0
 
+/* Ethernet */
+#define CONFIG_IPADDR			192.168.1.1
+#define CONFIG_SERVERIP			192.168.1.10
+#define CONFIG_NETMASK			255.255.255.0
+
+
+#if defined(CONFIG_RTAX53U) || defined(CONFIG_RTAX54)
+#define WPS_BTN                 15
+#define RST_BTN                 16
+#define PWR_LED                 13
+#define WIFI_2G_LED             18
+#define WIFI_5G_LED             26
+#endif 
+
+#ifdef CONFIG_4GAX56
+#define WPS_BTN                 4
+#define RST_BTN                 8
+#define PWR_LED                 14
+#define WIFI_2G_LED             13
+#define WIFI_5G_LED             16
+#define WAN_LED                 15
+#define LTE_2G_LED              3
+#define LTE_3G_LED              7
+#define LTE_4G_LED              10
+#define LTE_NO_SIG_LED          0
+#endif
+#if defined(CONFIG_RTAC85P)
+#define WPS_BTN                 6
+#define RST_BTN                 3
+#define PWR_LED                 4
+#define WIFI_2G_LED             10
+#define WIFI_5G_LED             8
+#endif
+#if defined(CONFIG_R6800)
+#define WPS_BTN                 18
+#define RST_BTN                 12
+#define PWR_LED                 5
+//#define WIFI_2G_LED             12
+//#define WIFI_5G_LED             13
+#endif
+#if defined(CONFIG_RMAC2100)
+//#define WPS_BTN                 6
+#define RST_BTN                 18
+#define PWR_LED                 8
+#define WIFI_2G_LED             10
+#define WIFI_5G_LED             6
+#endif
+#if defined(CONFIG_PGBM1)
+#define RST_BTN                 7
+#define PWR_LED                 15
+#define WIFI_2G_LED             13
+#define WIFI_5G_LED             14
+#endif
+#if defined(CONFIG_H3CTX1801)
+#define WPS_BTN                 14
+#define RST_BTN                 13
+#define PWR_LED                 16
+#endif
+
 #endif /* __CONFIG_MT7621_H */

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>升级中 -恢复模式</title>
+	<link rel="stylesheet" type="text/css" href="/style.css">
+</head>
+<body>
+	<div id="banner">
+		恢复模式
+	</div>
+	<div id="main">
+		<p>固件升级正在进行中，请耐心等待...</p>
+		<p>这个页面的反应可能会有延迟.</p>
+	</div>
+	<script type="text/javascript">
+		var interval = window.setInterval(function () {
+			var xmlhttp = new XMLHttpRequest();
+
+			window.clearInterval(interval);
+
+			xmlhttp.timeout = 300000;
+			xmlhttp.open("GET", "/result", true);
+			xmlhttp.send();
+			xmlhttp.onreadystatechange = function () {
+				if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+					document.getElementById("main").innerHTML = xmlhttp.responseText;
+				}
+			}
+		}, 1000);
+	</script>
+</body>
+</html>

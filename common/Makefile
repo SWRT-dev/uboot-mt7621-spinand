@@ -101,6 +101,7 @@ obj-y += eeprom/eeprom_field.o eeprom/eeprom_layout.o
 endif
 
 obj-y += cli.o
+obj-$(CONFIG_BOARD_MT7621_SPINAND_RFB) += cli_simple.o cli_readline.o
 obj-$(CONFIG_FSL_DDR_INTERACTIVE) += cli_simple.o cli_readline.o
 obj-$(CONFIG_STM32MP1_DDR_INTERACTIVE) += cli_simple.o cli_readline.o
 obj-$(CONFIG_DFU_OVER_USB) += dfu.o

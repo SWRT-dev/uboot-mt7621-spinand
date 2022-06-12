@@ -44,5 +44,8 @@ int last_stage_init(void)
 	free(src);
 	free(dst);
 
+	gpio_init();
+	PWR_LEDON();
+
 	return 0;
 }

@@ -856,6 +856,7 @@ libs-$(CONFIG_$(SPL_TPL_)UNIT_TEST) += test/
 libs-$(CONFIG_UT_ENV) += test/env/
 libs-$(CONFIG_UT_OPTEE) += test/optee/
 libs-$(CONFIG_UT_OVERLAY) += test/overlay/
+libs-$(CONFIG_WEBUI_FAILSAFE) += failsafe/
 
 libs-y += $(if $(BOARDDIR),board/$(BOARDDIR)/)
 

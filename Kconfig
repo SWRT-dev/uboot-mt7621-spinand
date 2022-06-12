@@ -556,6 +556,73 @@ config EXAMPLES
 
 endmenu		# General setup
 
+config ASUS_PRODUCT
+	bool "Enable ASUS PRODUCT"
+	default n
+	help
+	  Enable ASUS PRODUCT.
+
+config RTAX53U
+	bool "Enable RTAX53U"
+	default n
+	help
+	  Enable RTAX53U.
+
+config RTAX54
+	bool "Enable RTAX54"
+	default n
+	help
+	  Enable RTAX54.
+
+config 4GAX56
+	bool "Enable 4GAX56"
+	default n
+	help
+	  Enable 4GAX56.
+
+config RTAC85U
+	bool "Enable RTAC85U"
+	default n
+	help
+	  Enable RTAC85U.
+
+config RTAC85P
+	bool "Enable RTAC85P"
+	default n
+	help
+	  Enable RTAC85P.
+
+config R6800
+	bool "Enable R6800"
+	default n
+	help
+	  Enable R6800.
+
+config RMAC2100
+	bool "Enable RMAC2100"
+	default n
+	help
+	  Enable RMAC2100.
+
+config PGBM1
+	bool "Enable PGBM1"
+	default n
+	help
+	  Enable PGBM1.
+
+config H3CTX1801
+	bool "Enable H3C-TX1801"
+	default n
+	help
+	  Enable H3C-TX1801.
+
+config DEFAULT_NAND_KERNEL_OFFSET
+	hex "Default kernel offset in the NAND"
+	default 0x400000
+	help
+	  This is the fallback value if mtkboardboot command can't
+	  boot from MTD partition directly.
+
 source "api/Kconfig"
 
 source "boot/Kconfig"
@@ -579,5 +646,7 @@ source "fs/Kconfig"
 source "lib/Kconfig"
 
 source "test/Kconfig"
+
+source "failsafe/Kconfig"
 
 source "tools/Kconfig"
