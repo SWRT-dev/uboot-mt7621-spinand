@@ -34,6 +34,12 @@ static int do_mtkboardboot(struct cmd_tbl *cmdtp, int flag, int argc,
 	env_set("autostart", "yes");
 
 #ifndef CONFIG_ENABLE_NAND_NMBM
+#if defined(CONFIG_MTD_SPI_NAND)
+	sprintf(cmd, "mtd read firmware 0x%08x", CONFIG_SYS_SDRAM_BASE + SZ_32M);
+	run_command(cmd, 0);
+	sprintf(cmd, "bootm 0x%08x", CONFIG_SYS_SDRAM_BASE + SZ_32M);
+	run_command(cmd, 0);
+#else
 	run_command("nboot firmware", 0);
 #if defined(CONFIG_ASUS_PRODUCT)
 	sprintf(cmd, "nboot 0x%08x nand0 0x%08x",
@@ -45,6 +51,7 @@ static int do_mtkboardboot(struct cmd_tbl *cmdtp, int flag, int argc,
 		CONFIG_DEFAULT_NAND_KERNEL_OFFSET);
 #endif
 	run_command(cmd, 0);
+#endif
 #else
 	run_command("nmbm nmbm0 boot firmware", 0);
 

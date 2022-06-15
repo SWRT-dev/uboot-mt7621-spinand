@@ -247,7 +247,7 @@ static int mtd_special_write_oob(struct mtd_info *mtd, u64 off,
 	return ret;
 }
 
-static int do_mtd_io(struct cmd_tbl *cmdtp, int flag, int argc,
+int do_mtd_io(struct cmd_tbl *cmdtp, int flag, int argc,
 		     char *const argv[])
 {
 	bool dump, read, raw, woob, write_empty_pages, has_pages = false;

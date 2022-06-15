@@ -69,6 +69,106 @@
 #define CONFIG_SERVERIP			192.168.1.10
 #define CONFIG_NETMASK			255.255.255.0
 
+#if defined(CONFIG_ASUS_PRODUCT)
+/* NVRAM */
+#if defined(CONFIG_R6800) || defined(CONFIG_RMAC2100)
+#define NAND_NVRAM_OFFSET            0x140000   /* NVRAM offset */
+#define NAND_NVRAM_SIZE              0x40000  /* NVRAM max size : 128K + 128K(backup) */
+#elif defined(CONFIG_H3CTX1801)
+#define NAND_NVRAM_OFFSET            0x77C0000   /* NVRAM offset */
+#define NAND_NVRAM_SIZE              0x40000  /* NVRAM max size : 128K + 128K(backup) */
+#elif defined(CONFIG_PGBM1)
+#define NAND_NVRAM_OFFSET            0x100000   /* NVRAM offset */
+#define NAND_NVRAM_SIZE              0x10000  /* NVRAM max size : 128K + 128K(backup) */
+#else
+#define NAND_NVRAM_OFFSET            0xe0000   /* NVRAM offset */
+#define NAND_NVRAM_SIZE              0x100000  /* NVRAM max size : 128K + 128K(backup) */
+#endif
+
+/* FACTORY */
+#if defined(CONFIG_R6800)
+#define NAND_RF_OFFSET               0x4600000
+#define MAX_NAND_RF_SIZE             0x400000  /* RF max size : 256K + 256K(backup) */
+#elif defined(CONFIG_RMAC2100)
+#define NAND_RF_OFFSET               0x100000
+#define MAX_NAND_RF_SIZE             0x40000  /* RF max size : 256K + 256K(backup) */
+#elif defined(CONFIG_H3CTX1801)
+#define NAND_RF_OFFSET               0x180000
+#define MAX_NAND_RF_SIZE             0x80000  /* RF max size : 256K + 256K(backup) */
+#elif defined(CONFIG_PGBM1)
+#define NAND_RF_OFFSET               0x200000
+#define MAX_NAND_RF_SIZE             0x100000
+#else
+#define NAND_RF_OFFSET               0x1e0000
+#define MAX_NAND_RF_SIZE             0x100000  /* RF max size : 256K + 256K(backup) */
+#endif
+
+/* FACTORY2 */
+#if defined(CONFIG_R6800)
+#define NAND_RF_OFFSET_2             0x4600000
+#define MAX_NAND_RF_SIZE_2           0x400000  /* RF max size : 256K + 256K(backup) */
+#elif defined(CONFIG_RMAC2100)
+#define NAND_RF_OFFSET_2             0x100000
+#define MAX_NAND_RF_SIZE_2           0x40000  /* RF max size : 256K + 256K(backup) */
+#elif defined(CONFIG_H3CTX1801)
+#define NAND_RF_OFFSET_2             0x7740000
+#define MAX_NAND_RF_SIZE_2           0x80000  /* RF max size : 256K + 256K(backup) */
+#elif defined(CONFIG_PGBM1)
+#define NAND_RF_OFFSET_2              0x300000
+#define MAX_NAND_RF_SIZE_2            0x100000
+#else
+#define NAND_RF_OFFSET_2             0x2e0000
+#define MAX_NAND_RF_SIZE_2           0x100000  /* RF max size : 256K + 256K(backup) */
+#endif
+
+/* KERNEL */
+#if defined(CONFIG_R6800) || defined(CONFIG_RMAC2100)
+#define NAND_LINUX_OFFSET            0x200000
+#define MAX_NAND_LINUX_SIZE          0x2800000
+#elif defined(CONFIG_RTAC85P) || defined(CONFIG_PGBM1)
+#define NAND_LINUX_OFFSET          0x3e0000
+#define MAX_NAND_LINUX_SIZE        0x2300000
+#elif defined(CONFIG_H3CTX1801)
+#define NAND_LINUX_OFFSET          0x200000
+#define MAX_NAND_LINUX_SIZE        0x2300000
+#elif defined(CONFIG_PGBM1)
+#define NAND_LINUX_OFFSET          0x400000
+#define MAX_NAND_LINUX_SIZE        0x3C00000
+#else
+#define NAND_LINUX_OFFSET            0x3e0000
+#define MAX_NAND_LINUX_SIZE          0x3200000
+#endif
+
+/* KERNEL2 */
+#if defined(CONFIG_R6800) || defined(CONFIG_RMAC2100)
+#define NAND_LINUX_OFFSET_2            0x200000
+#define MAX_NAND_LINUX_SIZE_2          0x2800000
+#elif defined(CONFIG_RTAC85P) || defined(CONFIG_PGBM1)
+#define NAND_LINUX_OFFSET_2          0x35e0000
+#define MAX_NAND_LINUX_SIZE_2        0x2300000
+#elif defined(CONFIG_H3CTX1801)
+#define NAND_LINUX_OFFSET_2          0x2500000
+#define MAX_NAND_LINUX_SIZE_2        0x2300000
+#elif defined(CONFIG_PGBM1)
+#define NAND_LINUX_OFFSET_2          0x400000
+#define MAX_NAND_LINUX_SIZE_2        0x3C00000
+#else
+#define NAND_LINUX_OFFSET_2          0x35e0000
+#define MAX_NAND_LINUX_SIZE_2        0x3200000
+#endif
+
+#define MAX_NAND_PAGE_SIZE           2048
+#define MAX_NAND_BLOCK_SIZE          262144
+
+#define BOOTLOADER_VER_OFFSET        0x2ff7a
+#define MAC_OFFSET                   0x4
+#define MAC_5G_OFFSET                0xA
+#define PIN_CODE_OFFSET              0x2ff70
+#define COUNTRY_CODE_OFFSET          0x2ff78
+#if !defined(CONFIG_PGBM1)
+#define DUAL_TRX
+#endif
+#endif
 
 #if defined(CONFIG_RTAX53U) || defined(CONFIG_RTAX54)
 #define WPS_BTN                 15
@@ -113,7 +213,7 @@
 #endif
 #if defined(CONFIG_PGBM1)
 #define RST_BTN                 7
-#define PWR_LED                 15
+#define PWR_LED                 5
 #define WIFI_2G_LED             13
 #define WIFI_5G_LED             14
 #endif

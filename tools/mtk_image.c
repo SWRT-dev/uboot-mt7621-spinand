@@ -678,8 +678,11 @@ static int mtk_image_verify_mt7621_header(const uint8_t *ptr, int print)
 	/* Copy header so we can blank CRC field for re-calculation */
 	memmove(&header, hdr, image_get_header_size());
 	image_set_hcrc(&header, 0);
-
+#if defined(CONFIG_ASUS_PRODUCT)
+	nhdr = (struct mt7621_nand_header *)header.u.ih_name;
+#else
 	nhdr = (struct mt7621_nand_header *)header.ih_name;
+#endif
 	crcval = be32_to_cpu(nhdr->crc);
 	nhdr->crc = 0;
 
@@ -920,7 +923,11 @@ static void mtk_image_set_mt7621_header(void *ptr, off_t filesize,
 	uint32_t datasize, crcval;
 
 	datasize = filesize - image_get_header_size();
+#if defined(CONFIG_ASUS_PRODUCT)
+	nhdr = (struct mt7621_nand_header *)hdr->u.ih_name;
+#else
 	nhdr = (struct mt7621_nand_header *)hdr->ih_name;
+#endif
 	shdr = (struct mt7621_stage1_header *)(ptr + image_get_header_size());
 
 	shdr->ep = cpu_to_be32(loadaddr);

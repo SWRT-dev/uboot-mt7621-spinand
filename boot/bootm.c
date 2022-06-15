@@ -144,6 +144,9 @@ static int bootm_find_os(struct cmd_tbl *cmdtp, int flag, int argc,
 #endif
 #if CONFIG_IS_ENABLED(FIT)
 	case IMAGE_FORMAT_FIT:
+#if defined(CONFIG_ASUS_PRODUCT)
+	case IMAGE_FORMAT_LEGACYFIT:
+#endif  // CONFIG_ASUS_PRODUCT
 		if (fit_image_get_type(images.fit_hdr_os,
 				       images.fit_noffset_os,
 				       &images.os.type)) {
@@ -812,7 +815,7 @@ err:
 	return ret;
 }
 
-#if CONFIG_IS_ENABLED(LEGACY_IMAGE_FORMAT)
+#if CONFIG_IS_ENABLED(LEGACY_IMAGE_FORMAT) || defined(CONFIG_ASUS_PRODUCT)
 /**
  * image_get_kernel - verify legacy format kernel image
  * @img_addr: in RAM address of the legacy format image to be verified
@@ -864,6 +867,83 @@ static image_header_t *image_get_kernel(ulong img_addr, int verify)
 	return hdr;
 }
 #endif
+
+#if defined(CONFIG_ASUS_PRODUCT)
+int check_trx(ulong addr);
+int check_trx(ulong addr)
+{
+#define TRX_MAGIC                       0x56190527      /* Image Magic Number */
+#define NVRAM_MAGIC                     0x48534C46      /* 'FLSH' */
+#define NVRAM_MAGIC_MAC0                0x3043414D      /* 'MAC0' Added by PaN */
+#define NVRAM_MAGIC_MAC1                0x3143414D      /* 'MAC1' Added by PaN */
+#define NVRAM_MAGIC_RDOM                0x4D4F4452      /* 'RDOM' Added by PaN */
+#define NVRAM_MAGIC_ASUS                0x53555341      /* 'ASUS' Added by PaN */
+#define NVRAM_MAGIC_SCODE               0x45444F4353    /* 'SCODE' Added by Yen */
+
+    void *ptr = (void *)addr;
+    image_header_t *hdr = NULL;
+
+    if (addr <= 0)
+        return 0;
+
+    // Check TRX_MAGIC
+    if (*(ulong *)(ptr) != TRX_MAGIC)
+    {
+        puts("Bad TRX magic.\n");
+        return -1;
+    }
+
+    // get firmeare header & verify checksum
+    hdr = image_get_kernel(addr, 1);
+    if (!hdr)
+    {
+        puts("Bad TRX firmeare.\n");
+        return -2;
+    }
+
+    return (int)(sizeof(image_header_t) + htonl(hdr->ih_size));
+}
+
+int do_check_trx(struct cmd_tbl *cmdtp, int flag, int argc, char * const argv[])
+{
+    ulong addr = 0;
+    int arg, size = 0;
+    char s[128];
+
+    if (argc < 2) {
+        addr = image_load_addr;
+    }
+    else {
+        for (arg=1; arg<argc; ++arg)
+            addr = simple_strtoul(argv[arg], NULL, 16);
+    }
+
+//Checking Image at 003e0000 ...
+    memset(s, 0, sizeof(s));
+    snprintf(s, sizeof(s), "## Checking TRX firmware at 0x%lx ...\n", addr);
+    puts(s);
+
+    size = check_trx(addr);
+    memset(s, 0, sizeof(s));
+    snprintf(s, sizeof(s), "Verifying TRX firmware ... %s\n", (size>0)?"OK":"NG");
+    puts(s);
+
+    if (size > 0) {
+        memset(s, 0, sizeof(s));
+        snprintf(s, sizeof(s), "Firmware size ... %d(%08x)\n", size, size);
+        puts(s);
+    }
+
+    return 0;
+}
+/*
+U_BOOT_CMD(
+    check_trx, 1, 1, do_check_trx,
+    "Check ASUS TRX firmware.",
+    ""
+);*/
+
+#endif  // CONFIG_ASUS_PRODUCT
 
 /**
  * boot_get_kernel - find kernel image
@@ -964,6 +1044,22 @@ static const void *boot_get_kernel(struct cmd_tbl *cmdtp, int flag, int argc,
 		images->fit_uname_cfg = fit_uname_config;
 		images->fit_noffset_os = os_noffset;
 		break;
+#if defined(CONFIG_ASUS_PRODUCT)
+	case IMAGE_FORMAT_LEGACYFIT:
+		os_noffset = fit_image_load(images,	(img_addr+0x40),
+				&fit_uname_kernel, &fit_uname_config,
+				IH_ARCH_DEFAULT, IH_TYPE_KERNEL,
+				BOOTSTAGE_ID_FIT_KERNEL_START,
+				FIT_LOAD_IGNORED, os_data, os_len);
+		if (os_noffset < 0)
+			return NULL;
+
+		images->fit_hdr_os = map_sysmem(img_addr+0x40, 0);
+		images->fit_uname_os = fit_uname_kernel;
+		images->fit_uname_cfg = fit_uname_config;
+		images->fit_noffset_os = os_noffset;
+		break;
+#endif  // CONFIG_ASUS_PRODUCT
 #endif
 #ifdef CONFIG_ANDROID_BOOT_IMAGE
 	case IMAGE_FORMAT_ANDROID:
@@ -1028,7 +1124,7 @@ static int bootm_host_load_image(const void *fit, int req_image_type,
 		puts("Can't get image compression!\n");
 		return -EINVAL;
 	}
-
+	printf("imape_comp=%d\n", imape_comp);
 	/* Allow the image to expand by a factor of 4, should be safe */
 	load_buf = malloc((1 << 20) + len * 4);
 	ret = image_decomp(imape_comp, 0, data, image_type, load_buf,
@@ -1069,3 +1165,4 @@ int bootm_host_load_images(const void *fit, int cfg_noffset)
 #endif
 
 #endif /* ndef USE_HOSTCC */
+
